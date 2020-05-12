@@ -6,6 +6,8 @@ import br.com.libraryapi.repository.BookRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class BookServiceImpl implements BookService {
 
@@ -18,5 +20,15 @@ public class BookServiceImpl implements BookService {
             throw new BussinessException("ISBN já cadastrado.");
         }
         return bookRepository.save(book);
+    }
+
+    @Override
+    public Optional<Book> getById(Integer id) {
+        return Optional.empty();
+    }
+
+    @Override
+    public void delete(Book book) {
+        bookRepository.delete(book);
     }
 }

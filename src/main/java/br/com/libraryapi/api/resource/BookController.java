@@ -12,6 +12,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import br.com.libraryapi.api.dto.BookDTO;
+import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
 
@@ -33,11 +34,24 @@ public class BookController {
 		return modelMapper.map(book, BookDTO.class);
 	}
 
+	@GetMapping("{id}")
+	public BookDTO get(@PathVariable Integer id) {
+	    return bookService.getById(id)
+                          .map(book -> modelMapper.map(book, BookDTO.class))
+                          .orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @DeleteMapping("{id}")
+	@ResponseStatus(HttpStatus.NO_CONTENT)
+    public void delete(@PathVariable Integer id) {
+		Book book = bookService.getById(id).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		bookService.delete(book);
+	}
+
 	@ExceptionHandler(MethodArgumentNotValidException.class)
 	@ResponseStatus(HttpStatus.BAD_REQUEST)
 	public ApiErrors handleValidationExceptions (MethodArgumentNotValidException exception) {
 		BindingResult bindingResult = exception.getBindingResult();
-
 		return new ApiErrors(bindingResult);
 	}
 
