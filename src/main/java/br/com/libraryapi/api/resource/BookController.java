@@ -6,6 +6,9 @@ import br.com.libraryapi.model.Book;
 import br.com.libraryapi.service.BookService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -15,6 +18,8 @@ import br.com.libraryapi.api.dto.BookDTO;
 import org.springframework.web.server.ResponseStatusException;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/books")
@@ -46,6 +51,31 @@ public class BookController {
     public void delete(@PathVariable Integer id) {
 		Book book = bookService.getById(id).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND));
 		bookService.delete(book);
+	}
+
+	@PutMapping("{id}")
+	public BookDTO put(@PathVariable Integer id, BookDTO dto) {
+        return bookService.getById(id).map(book -> {
+
+			book.setAuthor(dto.getAuthor());
+			book.setTitle(dto.getTitle());
+			book = bookService.update(book);
+			return modelMapper.map(book, BookDTO.class);
+
+		}).orElseThrow( () -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    }
+
+    @GetMapping
+    public Page<BookDTO> find(BookDTO dto, Pageable pageable) {
+		Book filter = modelMapper.map(dto, Book.class);
+		Page<Book> result = bookService.find(filter, pageable);
+		List<BookDTO> list = result.getContent()
+				.stream()
+				.map(entity -> modelMapper.map(entity, BookDTO.class))
+				.collect(Collectors.toList());
+
+		return new PageImpl<BookDTO>(list, pageable, result.getTotalElements());
+
 	}
 
 	@ExceptionHandler(MethodArgumentNotValidException.class)

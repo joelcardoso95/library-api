@@ -10,6 +10,8 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -28,7 +30,7 @@ public class BookRepositoryTest {
     public void returnTrueWhenISBNExists() {
         // cenário
         String isbn = "123";
-        Book book = Book.builder().author("Robert Ludlum").title("A Identidade Bourne").isbn(isbn).build();
+        Book book = createNewBook(isbn);
         entityManager.persist(book);
 
         // execução
@@ -38,4 +40,55 @@ public class BookRepositoryTest {
         assertThat(exists).isTrue();
 
     }
+
+    @Test
+    @DisplayName("Deve obter um livro por id.")
+    public void findByIdTest() {
+        // cenário
+        String isbn = "123";
+        Book book = createNewBook(isbn);
+        entityManager.persist(book);
+
+        // execução
+        Optional<Book> foundBook =  bookRepository.findById(book.getId());
+
+        // verificações
+        assertThat(foundBook.isPresent()).isTrue();
+    }
+
+    @Test
+    @DisplayName("Deve salvar um livro.")
+    public void saveBookTest() {
+        // cenário
+        String isbn = "123";
+        Book book = createNewBook(isbn);
+
+        // execução
+        Book savedBook = bookRepository.save(book);
+
+        // verificações
+        assertThat(savedBook.getId()).isNotNull();
+    }
+
+    @Test
+    @DisplayName("Deve deletar um livro.")
+    public void deleteBookTest() {
+        // cenário
+        String isbn = "123";
+        Book book = createNewBook(isbn);
+        entityManager.persist(book);
+
+        // execução
+        Book foundBook = entityManager.find(Book.class, book.getId());
+        bookRepository.delete(foundBook);
+
+        // verificações
+        Book deletedBook = entityManager.find(Book.class, book.getId());
+        assertThat(deletedBook).isNull();
+    }
+
+    private Book createNewBook(String isbn) {
+        return Book.builder().author("Robert Ludlum").title("A Identidade Bourne").isbn(isbn).build();
+    }
+
 }
