@@ -15,6 +15,7 @@ import java.util.Optional;
 @Service
 public class BookServiceImpl implements BookService {
 
+    @Autowired
     private BookRepository bookRepository;
 
 
@@ -61,5 +62,10 @@ public class BookServiceImpl implements BookService {
                                             .withStringMatcher(ExampleMatcher.StringMatcher.CONTAINING));
 
         return bookRepository.findAll(bookExample, pageRequest);
+    }
+
+    @Override
+    public Optional<Book> getBookByIsbn(String isbn) {
+        return bookRepository.findByIsbn(isbn);
     }
 }

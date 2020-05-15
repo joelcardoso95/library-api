@@ -2,6 +2,7 @@ package br.com.libraryapi.resource;
 
 import br.com.libraryapi.api.dto.BookDTO;
 import br.com.libraryapi.api.exception.ApiErrors;
+import br.com.libraryapi.api.resource.BookController;
 import br.com.libraryapi.exception.BussinessException;
 import br.com.libraryapi.model.Book;
 import br.com.libraryapi.service.BookService;
@@ -46,7 +47,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @ExtendWith(SpringExtension.class)
 @ActiveProfiles("test")
-@WebMvcTest
+@WebMvcTest(controllers = BookController.class)
 @AutoConfigureMockMvc
 public class BookControllerTest {
 	

@@ -198,6 +198,24 @@ public class BookServiceTest {
         assertThat(result.getPageable().getPageSize()).isEqualTo(10);
     }
 
+    @Test
+    @DisplayName("Deve obter um livro pelo isbn.")
+    public void getBookByIsbnTest() {
+        // cenário
+        String isbn = "1234";
+        Mockito.when(bookRepository.findByIsbn(isbn)).thenReturn(Optional.of(Book.builder().id(11).isbn(isbn).build()));
+
+        // execução
+        Optional<Book> book = bookService.getBookByIsbn(isbn);
+
+        // verificações
+        assertThat(book.isPresent()).isTrue();
+        assertThat(book.get().getId()).isEqualTo(11);
+        assertThat(book.get().getIsbn()).isEqualTo(isbn);
+
+        Mockito.verify(bookRepository, Mockito.times(1)).findByIsbn(isbn);
+    }
+
     private Book createNewBook() {
         return Book.builder().author("Robert Ludlum").title("A Identidade Bourne").isbn("12345").build();
     }
