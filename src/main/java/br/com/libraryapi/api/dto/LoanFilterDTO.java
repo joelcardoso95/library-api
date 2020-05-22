@@ -1,19 +1,17 @@
 package br.com.libraryapi.api.dto;
 
-import br.com.libraryapi.model.Book;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Data
-@Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class LoanDTO {
+@NoArgsConstructor
+@Builder
+public class LoanFilterDTO {
 
-    private Integer id;
     private String isbn;
     private String customer;
-    private BookDTO book;
 }

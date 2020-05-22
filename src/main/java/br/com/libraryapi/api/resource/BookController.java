@@ -1,9 +1,12 @@
 package br.com.libraryapi.api.resource;
 
+import br.com.libraryapi.api.dto.LoanDTO;
 import br.com.libraryapi.api.exception.ApiErrors;
 import br.com.libraryapi.exception.BussinessException;
 import br.com.libraryapi.model.Book;
+import br.com.libraryapi.model.Loan;
 import br.com.libraryapi.service.BookService;
+import br.com.libraryapi.service.LoanService;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,9 @@ public class BookController {
 
 	@Autowired
 	private BookService bookService;
+
+	@Autowired
+	private LoanService loanService;
 
 	@Autowired
 	private ModelMapper modelMapper;
@@ -76,5 +82,22 @@ public class BookController {
 
 		return new PageImpl<BookDTO>(list, pageable, result.getTotalElements());
 
+	}
+
+	@GetMapping("{id}/loans")
+	public Page<LoanDTO> loansByBook(@PathVariable Integer id, Pageable pageable) {
+		Book book = bookService.getById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+		Page<Loan> result = loanService.getLoansByBook(book, pageable);
+		List<LoanDTO> list = result.getContent()
+				.stream()
+				.map(loan -> {
+					Book loanBook = loan.getBook();
+					BookDTO bookDTO = modelMapper.map(loanBook, BookDTO.class);
+					LoanDTO loanDTO = modelMapper.map(loan, LoanDTO.class);
+					loanDTO.setBook(bookDTO);
+					return loanDTO;
+				}).collect(Collectors.toList());
+
+		return new PageImpl<LoanDTO>(list, pageable, result.getTotalElements());
 	}
 }
