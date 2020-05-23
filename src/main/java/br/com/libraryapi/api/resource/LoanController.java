@@ -8,6 +8,8 @@ import br.com.libraryapi.model.Book;
 import br.com.libraryapi.model.Loan;
 import br.com.libraryapi.service.BookService;
 import br.com.libraryapi.service.LoanService;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -25,6 +27,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("api/loans")
+@Api("Loan API")
 public class LoanController {
 
     @Autowired
@@ -38,6 +41,7 @@ public class LoanController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
+    @ApiOperation("Create a loan")
     public Integer create(@RequestBody LoanDTO loanDTO) {
         Book book = bookService.getBookByIsbn(loanDTO.getIsbn())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Book not found for passed isbn"));
@@ -51,6 +55,7 @@ public class LoanController {
     }
 
     @PatchMapping("{id}")
+    @ApiOperation("Return a loan by id")
     public void returnBook(@PathVariable Integer id, @RequestBody ReturnedLoanDTO dto) {
         Loan loan = loanService.getById(id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
         loan.setReturned(dto.getReturned());
@@ -58,6 +63,7 @@ public class LoanController {
     }
 
     @GetMapping
+    @ApiOperation("Find a loan by params")
     public Page<LoanDTO> find(LoanFilterDTO filterDTO, Pageable pageable) {
         Page<Loan> result = loanService.find(filterDTO, pageable);
 
